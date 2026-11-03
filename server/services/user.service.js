@@ -9,6 +9,9 @@ class UserService {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+    if (normalizedEmail === "superadmin@example.com") {
+      throw new Error("This email is reserved for system administration");
+    }
     const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
       throw new Error("Email is already registered");

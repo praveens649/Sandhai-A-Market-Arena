@@ -4,33 +4,23 @@ const Category = require("../models/category.model");
 
 const seedAdminAndDefaults = async () => {
   try {
-    // 1. Seed Super Admin
+    // 1. Seed or Update Super Admin
     const adminEmail = "superadmin@example.com";
-    const existingAdmin = await User.findOne({ email: adminEmail });
+    const hashedPassword = await bcrypt.hash("12345678910", 10);
 
-    if (!existingAdmin) {
-      const hashedPassword = await bcrypt.hash("12345678910", 10);
-      try {
-        await User.create({
-          name: "Super Admin",
-          email: adminEmail,
-          password: hashedPassword,
-          phone: "9876543210",
-          role: "admin",
-          isActive: true,
-        });
-        console.log(`[SEED] Super admin created: ${adminEmail}`);
-      } catch (err) {
-        if (err.code !== 11000) throw err;
-      }
-    } else {
-      // Ensure admin role and active status
-      if (existingAdmin.role !== "admin" || !existingAdmin.isActive) {
-        existingAdmin.role = "admin";
-        existingAdmin.isActive = true;
-        await existingAdmin.save();
-      }
-    }
+    const adminUser = await User.findOneAndUpdate(
+      { email: adminEmail },
+      {
+        name: "Super Admin",
+        email: adminEmail,
+        password: hashedPassword,
+        phone: "9876543210",
+        role: "admin",
+        isActive: true,
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    console.log(`[SEED] Super admin verified: ${adminUser.email} (Role: ${adminUser.role})`);
 
     // 2. Seed Default Grocery Categories if none exist
     const defaultCategories = [
