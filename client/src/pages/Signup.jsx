@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -24,8 +24,19 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const { signup } = useAuth();
+  const { signup, isAuthenticated, isAdmin, role } = useAuth();
   const navigate = useNavigate();
+
+  // If already authenticated, redirect to the user's role-specific home
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (isAdmin || role === 'admin') {
+        navigate('/app/admin', { replace: true });
+      } else {
+        navigate('/app/shop', { replace: true });
+      }
+    }
+  }, [isAuthenticated, isAdmin, role, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -56,7 +67,8 @@ const Signup = () => {
         phone: formData.phone,
         password: formData.password,
       });
-      navigate('/app', { replace: true });
+      // New signup is always a customer
+      navigate('/app/shop', { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.message || err.message || 'Signup failed. Please try again.'

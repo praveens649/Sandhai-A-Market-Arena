@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -21,10 +21,20 @@ const Login = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const { loginCustomer, loginAdmin } = useAuth();
+  const { loginCustomer, loginAdmin, isAuthenticated, isAdmin, role } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/app';
+
+  // If already authenticated, redirect to the user's role-specific home
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (isAdmin || role === 'admin') {
+        navigate('/app/admin', { replace: true });
+      } else {
+        navigate('/app/shop', { replace: true });
+      }
+    }
+  }, [isAuthenticated, isAdmin, role, navigate]);
 
   const fillAdminCredentials = () => {
     setIsAdminMode(true);
@@ -39,12 +49,32 @@ const Login = () => {
     setSubmitting(true);
 
     try {
+      let authRes;
       if (isAdminMode) {
-        await loginAdmin(email, password);
+        authRes = await loginAdmin(email, password);
       } else {
-        await loginCustomer(email, password);
+        authRes = await loginCustomer(email, password);
       }
-      navigate(from, { replace: true });
+
+      // Check role returned from the decoded JWT payload
+      const userRole = authRes?.role || (isAdminMode ? 'admin' : 'user');
+      const fromPath = location.state?.from?.pathname;
+
+      if (userRole === 'admin') {
+        // If coming from an admin route, respect it; otherwise send to /app/admin
+        if (fromPath && fromPath.startsWith('/app/admin')) {
+          navigate(fromPath, { replace: true });
+        } else {
+          navigate('/app/admin', { replace: true });
+        }
+      } else {
+        // Customer role: if coming from a customer route, respect it; don't route to an admin route!
+        if (fromPath && fromPath.startsWith('/app') && !fromPath.startsWith('/app/admin')) {
+          navigate(fromPath, { replace: true });
+        } else {
+          navigate('/app/shop', { replace: true });
+        }
+      }
     } catch (err) {
       setError(
         err.response?.data?.message || err.message || 'Authentication failed. Please check credentials.'

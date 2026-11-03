@@ -123,7 +123,7 @@ const TESTIMONIALS = [
 // LandingPage Component
 // ──────────────────────────────────────────
 const LandingPage = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -160,10 +160,10 @@ const LandingPage = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {user ? (
                 <button
-                  onClick={() => navigate('/app')}
+                  onClick={() => navigate(isAdmin ? '/app/admin' : '/app/shop')}
                   className="group px-8 py-4 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-xl shadow-emerald-600/25 hover:from-emerald-700 hover:to-teal-700 hover:shadow-emerald-600/40 active:scale-[0.97] transition-all duration-200 flex items-center gap-2 cursor-pointer"
                 >
-                  Go to Your Dashboard
+                  <span>{isAdmin ? 'Go to Admin Console' : 'Go to Shop Catalog'}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
               ) : (

@@ -3,8 +3,14 @@ import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ShieldAlert, ArrowLeft, LogOut } from 'lucide-react';
 
-const ProtectedRoute = ({ children, requiredRole = null, adminOnly = false }) => {
-  const { isAuthenticated, isAdmin, user, loading, logout } = useAuth();
+const ProtectedRoute = ({
+  children,
+  role = null,
+  requiredRole = null,
+  adminOnly = false,
+  userOnly = false,
+}) => {
+  const { isAuthenticated, role: currentRole, isAdmin, isCustomer, user, loading, logout } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -18,12 +24,13 @@ const ProtectedRoute = ({ children, requiredRole = null, adminOnly = false }) =>
     );
   }
 
+  // If not logged in, redirect to login preserving destination
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Check adminOnly or requiredRole
-  const needsAdmin = adminOnly || requiredRole === 'admin';
+  // Check admin access requirement
+  const needsAdmin = adminOnly || requiredRole === 'admin' || role === 'admin';
   if (needsAdmin && !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-slate-100">
@@ -33,11 +40,12 @@ const ProtectedRoute = ({ children, requiredRole = null, adminOnly = false }) =>
           </div>
           <h2 className="text-2xl font-black text-slate-900">Access Restricted</h2>
           <p className="text-sm text-slate-600 leading-relaxed">
-            This module requires <strong className="text-rose-600 font-bold">Administrator</strong> privileges. You are currently logged in as a standard Customer (<span className="font-mono text-slate-800">{user?.email}</span>).
+            This module requires <strong className="text-rose-600 font-bold">Administrator</strong> privileges.
+            Your active JWT session has role <strong className="font-mono text-slate-900 uppercase">'{currentRole}'</strong> (<span className="font-mono text-slate-800">{user?.email}</span>).
           </p>
           <div className="pt-2 flex flex-col gap-2.5">
             <Link
-              to="/app"
+              to="/app/shop"
               className="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -54,6 +62,14 @@ const ProtectedRoute = ({ children, requiredRole = null, adminOnly = false }) =>
         </div>
       </div>
     );
+  }
+
+  // Check customer access requirement
+  const needsUser = userOnly || requiredRole === 'user' || role === 'user';
+  if (needsUser && !isCustomer) {
+    // If an administrator lands on customer-only checkout/cart routes, route them to their admin dashboard
+    const adminTarget = location.pathname.includes('/orders') ? '/app/admin/orders' : '/app/admin';
+    return <Navigate to={adminTarget} replace />;
   }
 
   return children;

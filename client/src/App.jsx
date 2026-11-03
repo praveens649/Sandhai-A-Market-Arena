@@ -29,10 +29,28 @@ import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 
-// Smart index redirect based on role
+// Smart index redirect based on verified JWT role
 const AppIndexRedirect = () => {
-  const { isAdmin } = useAuth();
-  return <Navigate to={isAdmin ? '/app/admin' : '/app/shop'} replace />;
+  const { role, isAdmin } = useAuth();
+  return <Navigate to={role === 'admin' || isAdmin ? '/app/admin' : '/app/shop'} replace />;
+};
+
+// Smart orders alias: admin goes to all orders console, customer goes to customer orders
+const OrdersRedirect = () => {
+  const { role, isAdmin } = useAuth();
+  return <Navigate to={role === 'admin' || isAdmin ? '/app/admin/orders' : '/app/orders'} replace />;
+};
+
+// Smart cart alias: admin goes to admin overview, customer goes to cart
+const CartRedirect = () => {
+  const { role, isAdmin } = useAuth();
+  return <Navigate to={role === 'admin' || isAdmin ? '/app/admin' : '/app/cart'} replace />;
+};
+
+// Smart wishlist alias
+const WishlistRedirect = () => {
+  const { role, isAdmin } = useAuth();
+  return <Navigate to={role === 'admin' || isAdmin ? '/app/admin' : '/app/wishlist'} replace />;
 };
 
 // Top-level /product/:id redirect to /app/product/:id
@@ -56,10 +74,10 @@ const App = () => {
 
                 {/* ── Top-level Convenience Aliases (Page 1 of PDF) ── */}
                 <Route path="/shop" element={<Navigate to="/app/shop" replace />} />
-                <Route path="/cart" element={<Navigate to="/app/cart" replace />} />
+                <Route path="/cart" element={<CartRedirect />} />
+                <Route path="/wishlist" element={<WishlistRedirect />} />
+                <Route path="/orders" element={<OrdersRedirect />} />
                 <Route path="/product/:id" element={<ProductAliasRedirect />} />
-                <Route path="/wishlist" element={<Navigate to="/app/wishlist" replace />} />
-                <Route path="/orders" element={<Navigate to="/app/orders" replace />} />
 
                 {/* ── Protected Authenticated Routes with Nested React Router ── */}
                 <Route
@@ -70,17 +88,40 @@ const App = () => {
                     </ProtectedRoute>
                   }
                 >
-                  {/* Default /app routes based on role */}
+                  {/* Default /app routes based on JWT role */}
                   <Route index element={<AppIndexRedirect />} />
 
-                  {/* Customer Routes */}
+                  {/* Customer Catalog & Product Viewing */}
                   <Route path="shop" element={<ShopPage />} />
                   <Route path="product/:id" element={<ProductDetailPage />} />
-                  <Route path="cart" element={<CartPage />} />
-                  <Route path="wishlist" element={<WishlistPage />} />
-                  <Route path="orders" element={<OrdersPage />} />
 
-                  {/* Admin Protected Routes */}
+                  {/* Customer Private Routes (Restricted from Admin role) */}
+                  <Route
+                    path="cart"
+                    element={
+                      <ProtectedRoute userOnly>
+                        <CartPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="wishlist"
+                    element={
+                      <ProtectedRoute userOnly>
+                        <WishlistPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="orders"
+                    element={
+                      <ProtectedRoute userOnly>
+                        <OrdersPage />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Admin Protected Routes (Restricted from Customer role) */}
                   <Route
                     path="admin"
                     element={

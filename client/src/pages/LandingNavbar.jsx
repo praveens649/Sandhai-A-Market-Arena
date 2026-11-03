@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const LandingNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -34,10 +34,10 @@ const LandingNavbar = () => {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <button
-                onClick={() => navigate('/app')}
+                onClick={() => navigate(isAdmin ? '/app/admin' : '/app/shop')}
                 className="px-5 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25 hover:from-emerald-700 hover:to-teal-700 transition-all cursor-pointer"
               >
-                Go to Dashboard →
+                {isAdmin ? 'Admin Console →' : 'Go to Shop →'}
               </button>
             ) : (
               <>
@@ -76,10 +76,10 @@ const LandingNavbar = () => {
           <div className="pt-2 flex flex-col gap-2">
             {user ? (
               <button
-                onClick={() => { navigate('/app'); setMenuOpen(false); }}
+                onClick={() => { navigate(isAdmin ? '/app/admin' : '/app/shop'); setMenuOpen(false); }}
                 className="w-full py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-emerald-600 to-teal-600 text-white cursor-pointer"
               >
-                Go to Dashboard →
+                {isAdmin ? 'Admin Console →' : 'Go to Shop →'}
               </button>
             ) : (
               <>
