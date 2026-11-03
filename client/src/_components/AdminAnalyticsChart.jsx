@@ -17,7 +17,7 @@ const AdminAnalyticsChart = ({ analyticsData }) => {
 
   const {
     last7Days = [],
-    statusCounts = { Delivered: 0, Processing: 0, Pending: 0, Cancelled: 0 },
+    statusCounts = { Ordered: 0, Delivered: 0, Cancelled: 0 },
     totalRevenue = 0,
     averageOrderValue = 0,
     completionRate = 0,
@@ -188,28 +188,20 @@ const AdminAnalyticsChart = ({ analyticsData }) => {
           <div className="space-y-3">
             {[
               {
+                label: 'Ordered',
+                count: statusCounts.Ordered || 0,
+                color: 'bg-blue-500',
+                textColor: 'text-blue-700',
+                bgColor: 'bg-blue-50',
+                icon: Clock,
+              },
+              {
                 label: 'Delivered',
                 count: statusCounts.Delivered || 0,
                 color: 'bg-emerald-600',
                 textColor: 'text-emerald-700',
                 bgColor: 'bg-emerald-50',
                 icon: CheckCircle2,
-              },
-              {
-                label: 'Processing',
-                count: statusCounts.Processing || 0,
-                color: 'bg-sky-500',
-                textColor: 'text-sky-700',
-                bgColor: 'bg-sky-50',
-                icon: Truck,
-              },
-              {
-                label: 'Pending Approval',
-                count: statusCounts.Pending || 0,
-                color: 'bg-amber-500',
-                textColor: 'text-amber-700',
-                bgColor: 'bg-amber-50',
-                icon: Clock,
               },
               {
                 label: 'Cancelled',

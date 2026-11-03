@@ -53,6 +53,16 @@ const seedAdminAndDefaults = async () => {
         console.log(`[SEED] Default category created: ${cat.name}`);
       }
     }
+
+    // 3. Migrate any legacy order statuses to "Ordered"
+    const Order = require("../models/order.model");
+    const migrationResult = await Order.updateMany(
+      { orderStatus: { $in: ["Pending", "Processing", "Shipped"] } },
+      { $set: { orderStatus: "Ordered" } }
+    );
+    if (migrationResult.modifiedCount > 0) {
+      console.log(`[MIGRATION] Migrated ${migrationResult.modifiedCount} legacy order(s) to 'Ordered'`);
+    }
   } catch (error) {
     console.error("[SEED] Error seeding database:", error.message);
   }

@@ -80,7 +80,7 @@ class OrderService {
       totalAmount,
       paymentMethod,
       paymentStatus: paymentMethod === "COD" ? "Pending" : "Completed",
-      orderStatus: "Pending",
+      orderStatus: "Ordered",
     });
 
     // 7. Clear user's cart
@@ -123,7 +123,7 @@ class OrderService {
       throw new Error("Access denied: You can only cancel your own orders");
     }
 
-    if (["Shipped", "Delivered", "Cancelled"].includes(order.orderStatus)) {
+    if (["Delivered", "Cancelled"].includes(order.orderStatus)) {
       throw new Error(
         `Cannot cancel order with current status '${order.orderStatus}'`
       );

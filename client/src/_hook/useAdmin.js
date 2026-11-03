@@ -232,9 +232,8 @@ export const useAdmin = () => {
 
     // 2. Order Status Breakdown
     const statusCounts = {
+      Ordered: orders.filter((o) => o.orderStatus === 'Ordered' || o.orderStatus === 'Pending' || o.orderStatus === 'Processing' || o.orderStatus === 'Shipped').length,
       Delivered: orders.filter((o) => o.orderStatus === 'Delivered').length,
-      Processing: orders.filter((o) => o.orderStatus === 'Processing').length,
-      Pending: orders.filter((o) => o.orderStatus === 'Pending').length,
       Cancelled: orders.filter((o) => o.orderStatus === 'Cancelled').length,
     };
 

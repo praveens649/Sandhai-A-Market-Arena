@@ -196,7 +196,7 @@ async function runTests() {
     console.log("Status:", myOrdersRes.status, "Orders count:", myOrdersRes.data.orders.length);
 
     // 14. Admin View All Orders & Update Order Status
-    console.log("\n[Test 14] Admin viewing all orders and updating status to 'Processing'...");
+    console.log("\n[Test 14] Admin viewing all orders and updating status to 'Delivered'...");
     const adminOrdersRes = await api("/api/admin/orders", {
       headers: { Authorization: `Bearer ${adminToken}` },
     });
@@ -205,7 +205,7 @@ async function runTests() {
     const updateStatusRes = await api(`/api/admin/orders/${orderId}/status`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${adminToken}` },
-      body: JSON.stringify({ orderStatus: "Processing" }),
+      body: JSON.stringify({ orderStatus: "Delivered" }),
     });
     console.log("Status:", updateStatusRes.status, "Updated status:", updateStatusRes.data.order.orderStatus);
 

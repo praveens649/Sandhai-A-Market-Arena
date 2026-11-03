@@ -114,7 +114,7 @@ class AdminService {
   }
 
   async updateOrderStatus(orderId, orderStatus) {
-    const allowedStatuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+    const allowedStatuses = ["Ordered", "Delivered", "Cancelled"];
     if (!allowedStatuses.includes(orderStatus)) {
       throw new Error(`Invalid status. Allowed statuses: ${allowedStatuses.join(", ")}`);
     }

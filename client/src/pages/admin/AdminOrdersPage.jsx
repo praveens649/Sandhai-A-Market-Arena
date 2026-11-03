@@ -30,7 +30,7 @@ const AdminOrdersPage = () => {
 
         {/* Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {['ALL', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map((st) => (
+          {['ALL', 'Ordered', 'Delivered', 'Cancelled'].map((st) => (
             <button
               key={st}
               onClick={() => setOrderStatusFilter(st)}
@@ -88,12 +88,10 @@ const AdminOrdersPage = () => {
                 <span className="text-xs font-bold text-slate-500">Status:</span>
                 <select
                   value={ord.orderStatus}
-                  onChange={(e) => handleUpdateStatus(ord._id, e.target.value)}
+                  onChange={(e) => handleUpdateOrderStatus(ord._id, e.target.value)}
                   className="text-xs font-bold p-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 outline-none focus:border-amber-500 cursor-pointer"
                 >
-                  <option value="Pending">Pending</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Shipped">Shipped</option>
+                  <option value="Ordered">Ordered</option>
                   <option value="Delivered">Delivered</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
