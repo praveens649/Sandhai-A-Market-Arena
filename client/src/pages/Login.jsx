@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { 
   ShoppingBag, 
   Lock, 
@@ -22,6 +23,7 @@ const Login = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const { loginCustomer, loginAdmin, isAuthenticated, isAdmin, role } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -59,6 +61,7 @@ const Login = () => {
       // Check role returned from the decoded JWT payload
       const userRole = authRes?.role || (isAdminMode ? 'admin' : 'user');
       const fromPath = location.state?.from?.pathname;
+      showToast(`Welcome back, ${authRes?.user?.name || (userRole === 'admin' ? 'Administrator' : 'Customer')}!`, 'success');
 
       if (userRole === 'admin') {
         // If coming from an admin route, respect it; otherwise send to /app/admin
@@ -76,9 +79,9 @@ const Login = () => {
         }
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message || err.message || 'Authentication failed. Please check credentials.'
-      );
+      const msg = err.response?.data?.message || err.message || 'Authentication failed. Please check credentials.';
+      setError(msg);
+      showToast(msg, 'error');
     } finally {
       setSubmitting(false);
     }

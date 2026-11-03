@@ -61,10 +61,10 @@ const ProductAliasRedirect = () => {
 
 const App = () => {
   return (
-    <AuthProvider>
-      <StoreProvider>
-        <ThemeProvider>
-          <ToastProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <StoreProvider>
+          <ThemeProvider>
             <BrowserRouter>
               <Routes>
                 {/* ── Public Landing & Auth ── */}
@@ -168,10 +168,10 @@ const App = () => {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </BrowserRouter>
-          </ToastProvider>
-        </ThemeProvider>
-      </StoreProvider>
-    </AuthProvider>
+          </ThemeProvider>
+        </StoreProvider>
+      </AuthProvider>
+    </ToastProvider>
   );
 };
 

@@ -76,12 +76,6 @@ const AdminProductsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Toast */}
-      {toastMessage.text && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-xl">
-          {toastMessage.text}
-        </div>
-      )}
 
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80">

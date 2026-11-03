@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
+import { useToast } from './ToastContext';
 import api from '../api/client';
 import {
   fetchCart,
@@ -40,13 +41,14 @@ export const StoreProvider = ({ children }) => {
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('COD');
 
-  // Global Toast Feedback
+  // Global Toast Feedback from ToastContext
+  const { showToast: triggerToast } = useToast();
   const [feedback, setFeedback] = useState({ type: '', message: '' });
 
   const showToast = useCallback((message, type = 'success') => {
     setFeedback({ type, message });
-    setTimeout(() => setFeedback({ type: '', message: '' }), 4000);
-  }, []);
+    triggerToast(message, type);
+  }, [triggerToast]);
 
   // 1. Fetch Products & Categories
   const loadCatalog = useCallback(async () => {
@@ -232,11 +234,17 @@ export const StoreProvider = ({ children }) => {
   const applyCouponCode = (code) => {
     const res = validateCoupon(code, subtotal);
     setCoupon(res);
+    if (res.isValid) {
+      showToast(res.message || 'Coupon applied! 10% discount added.', 'success');
+    } else {
+      showToast(res.message || 'Invalid coupon code', 'error');
+    }
     return res;
   };
 
   const removeCoupon = () => {
     setCoupon({ code: '', isValid: false, discountAmount: 0, discountPercentage: 0, message: '' });
+    showToast('Coupon removed', 'info');
   };
 
   useEffect(() => {
@@ -308,11 +316,10 @@ export const StoreProvider = ({ children }) => {
   };
 
   const cancelOrder = async (orderId) => {
-    if (!window.confirm('Are you sure you want to cancel this order?')) return;
     try {
       const res = await api.patch(`/api/orders/${orderId}/cancel`);
       if (res.data.success) {
-        showToast('Order cancelled');
+        showToast('Order cancelled successfully', 'info');
         const ordRes = await api.get('/api/orders/my-orders');
         if (ordRes.data.success) setMyOrders(ordRes.data.orders);
       }

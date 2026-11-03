@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { 
   ShoppingBag, 
   Lock, 
@@ -25,6 +26,7 @@ const Signup = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const { signup, isAuthenticated, isAdmin, role } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   // If already authenticated, redirect to the user's role-specific home
@@ -50,12 +52,16 @@ const Signup = () => {
     setError('');
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      const msg = 'Password must be at least 6 characters long';
+      setError(msg);
+      showToast(msg, 'error');
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      const msg = 'Passwords do not match';
+      setError(msg);
+      showToast(msg, 'error');
       return;
     }
 
@@ -67,12 +73,13 @@ const Signup = () => {
         phone: formData.phone,
         password: formData.password,
       });
+      showToast('Account created successfully! Welcome to Sandhai.', 'success');
       // New signup is always a customer
       navigate('/app/shop', { replace: true });
     } catch (err) {
-      setError(
-        err.response?.data?.message || err.message || 'Signup failed. Please try again.'
-      );
+      const msg = err.response?.data?.message || err.message || 'Signup failed. Please try again.';
+      setError(msg);
+      showToast(msg, 'error');
     } finally {
       setSubmitting(false);
     }

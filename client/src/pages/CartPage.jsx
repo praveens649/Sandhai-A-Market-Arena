@@ -80,9 +80,7 @@ const CartPage = () => {
   };
 
   const handleDeleteAddress = async (id) => {
-    if (window.confirm('Are you sure you want to delete this delivery address?')) {
-      await deleteAddress(id);
-    }
+    await deleteAddress(id);
   };
 
   const handleSaveAddress = async (e) => {

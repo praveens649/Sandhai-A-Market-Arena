@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useToast } from '../context/ToastContext';
 import {
   fetchAdminDashboard,
   fetchAdminOrders,
@@ -30,10 +31,12 @@ export const useAdmin = () => {
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [userSearchQuery, setUserSearchQuery] = useState('');
 
+  const { showToast: triggerToast } = useToast();
+
   const showToast = useCallback((text, type = 'success') => {
     setToastMessage({ text, type });
-    setTimeout(() => setToastMessage({ text: '', type: 'success' }), 3500);
-  }, []);
+    triggerToast(text, type);
+  }, [triggerToast]);
 
   // Fetch all admin data
   const loadAllData = useCallback(async () => {
@@ -135,11 +138,10 @@ export const useAdmin = () => {
   };
 
   const handleDeleteProduct = async (productId) => {
-    if (!window.confirm('Delete this product permanently from the catalog?')) return false;
     try {
       const res = await deleteAdminProduct(productId);
       if (res.success) {
-        showToast('Product removed');
+        showToast('Product removed permanently', 'info');
         setProducts((prev) => prev.filter((p) => p._id !== productId));
         return true;
       }
@@ -179,12 +181,10 @@ export const useAdmin = () => {
   };
 
   const handleDeleteCategory = async (categoryId) => {
-    if (!window.confirm('Delete this category? Associated products may lose their category link.'))
-      return false;
     try {
       const res = await deleteAdminCategory(categoryId);
       if (res.success) {
-        showToast('Category deleted');
+        showToast('Category deleted successfully', 'info');
         setCategories((prev) => prev.filter((c) => c._id !== categoryId));
         return true;
       }
