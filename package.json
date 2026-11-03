@@ -4,7 +4,8 @@
   "description": "Sandhai - A Marketplace Arena",
   "scripts": {
     "server": "npm --prefix server start",
-    "server:dev": "npm --prefix server start",
+    "client": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
     "server:test": "npm --prefix server test",
     "test": "npm --prefix server test"
   },

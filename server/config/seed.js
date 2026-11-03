@@ -10,15 +10,19 @@ const seedAdminAndDefaults = async () => {
 
     if (!existingAdmin) {
       const hashedPassword = await bcrypt.hash("12345678910", 10);
-      await User.create({
-        name: "Super Admin",
-        email: adminEmail,
-        password: hashedPassword,
-        phone: "9876543210",
-        role: "admin",
-        isActive: true,
-      });
-      console.log(`[SEED] Super admin created: ${adminEmail}`);
+      try {
+        await User.create({
+          name: "Super Admin",
+          email: adminEmail,
+          password: hashedPassword,
+          phone: "9876543210",
+          role: "admin",
+          isActive: true,
+        });
+        console.log(`[SEED] Super admin created: ${adminEmail}`);
+      } catch (err) {
+        if (err.code !== 11000) throw err;
+      }
     } else {
       // Ensure admin role and active status
       if (existingAdmin.role !== "admin" || !existingAdmin.isActive) {
