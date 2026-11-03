@@ -34,7 +34,7 @@ app.use("/api/orders", orderRoutes);
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "FreshMart Grocery E-Commerce Backend API is active",
+    message: "Sandhai - A Marketplace Arena Backend API is active",
     version: "1.0.0",
     endpoints: {
       users: "/api/users",
@@ -71,7 +71,7 @@ const port = process.env.PORT || 3003;
 if (process.env.NODE_ENV !== "test") {
   connectDB().then(() => {
     app.listen(port, () => {
-      console.log(`FreshMart server running on port ${port}`);
+      console.log(`Sandhai server running on port ${port}`);
     });
   });
 }

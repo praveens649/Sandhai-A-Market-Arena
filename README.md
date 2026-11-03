@@ -1,6 +1,6 @@
-# FreshMart — Full-Stack Grocery E-Commerce Backend
+# Sandhai — A Marketplace Arena (Backend API)
 
-A robust Node.js, Express, and MongoDB backend supporting both the **User (Customer) Panel** and **Admin Panel** for the FreshMart Grocery E-Commerce Application.
+A robust Node.js, Express, and MongoDB backend supporting both the **User (Customer) Panel** and **Admin Panel** for the **Sandhai — A Marketplace Arena** e-commerce platform.
 
 Built strictly according to the **FreshMart Frontend & Backend Module Plan** with clean MVC-Service architecture, Role-Based Access Control (RBAC), JWT authentication, automated seeding, server-side price validation, stock reduction, and order processing.
 
