@@ -9,11 +9,16 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
     localStorage.setItem("sandhai-theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((current) => current === "light" ? "dark" : "light");
+    setTheme((current) => (current === "light" ? "dark" : "light"));
   };
 
   return (

@@ -5,12 +5,12 @@ import LatestProducts from "./_components/LatestProducts";
 
 const Home = () => {
   return (
-    <>
+    <div className="space-y-14 pb-12">
       <HeroBanner />
       <CategorySection />
       <FeaturedProducts />
       <LatestProducts />
-    </>
+    </div>
   );
 };
 
