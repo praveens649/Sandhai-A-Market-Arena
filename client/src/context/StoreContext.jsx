@@ -328,6 +328,18 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  const refreshOrders = async () => {
+    try {
+      const ordRes = await api.get('/api/orders/my-orders');
+      if (ordRes.data?.orders) {
+        setMyOrders(ordRes.data.orders);
+        showToast('Orders refreshed', 'info');
+      }
+    } catch (err) {
+      showToast('Could not refresh orders', 'error');
+    }
+  };
+
   const addAddress = async (newAddress) => {
     try {
       const res = await api.post('/api/addresses', newAddress);
@@ -412,6 +424,7 @@ export const StoreProvider = ({ children }) => {
     moveWishlistToCart,
     // Orders & Addresses
     myOrders,
+    refreshOrders,
     placeOrder,
     cancelOrder,
     addresses,
