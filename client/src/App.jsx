@@ -1,45 +1,38 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import MainApp from './pages/MainApp';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Root redirect handler
-const RootRedirect = () => {
-  const { isAuthenticated, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-  return <Navigate to={isAuthenticated ? "/app" : "/login"} replace />;
-};
+import { ThemeProvider } from "./context/ThemeContext";
+import { ToastProvider } from "./context/ToastContext";
 
-function App() {
+import UserLayout from "./app/(mainapp)/_components/UserLayout";
+import Home from "./app/(mainapp)/home/Home";
+import Products from "./app/(mainapp)/products/Products";
+import ProductDetails from "./app/(mainapp)/products/ProductDetails";
+import Cart from "./app/(mainapp)/cart/Cart";
+import Wishlist from "./app/(mainapp)/wishlist/Wishlist";
+import Orders from "./app/(mainapp)/orders/Orders";
+import Profile from "./app/(mainapp)/profile/Profile";
+import Checkout from "./app/(mainapp)/checkout/Checkout";
+const App = () => {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<RootRedirect />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route
-            path="/app/*"
-            element={
-              <ProtectedRoute>
-                <MainApp />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<UserLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/checkout" element={<Checkout />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </ToastProvider>
+    </ThemeProvider>
   );
-}
+};
 
 export default App;
