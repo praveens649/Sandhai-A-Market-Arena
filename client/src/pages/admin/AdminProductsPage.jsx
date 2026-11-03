@@ -1,16 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import api from '../../api/client';
-import { Plus, Edit, Trash2, X, Package } from 'lucide-react';
+import React, { useState } from 'react';
+import { useAdmin } from '../../_hook/useAdmin';
+import { Plus, Edit, Trash2, X, Search, Package } from 'lucide-react';
 
 const AdminProductsPage = () => {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const {
+    filteredProducts,
+    categories,
+    loading,
+    handleSaveProduct,
+    handleDeleteProduct,
+    productSearchQuery,
+    setProductSearchQuery,
+    toastMessage,
+  } = useAdmin();
 
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
   const [productForm, setProductForm] = useState({
     name: '',
     description: '',
@@ -20,31 +26,6 @@ const AdminProductsPage = () => {
     stock: '',
     image: '',
   });
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
-  };
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [prodRes, catRes] = await Promise.all([
-        api.get('/api/products?limit=100'),
-        api.get('/api/categories'),
-      ]);
-      setProducts(prodRes.data.products || []);
-      setCategories(catRes.data.categories || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   const openCreateModal = () => {
     setEditingProduct(null);
@@ -74,66 +55,39 @@ const AdminProductsPage = () => {
     setShowModal(true);
   };
 
-  const handleSaveProduct = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setActionLoading(true);
-    try {
-      const payload = {
-        name: productForm.name,
-        description: productForm.description,
-        category: productForm.category,
-        price: Number(productForm.price),
-        unit: productForm.unit,
-        stock: Number(productForm.stock),
-        image: productForm.image,
-      };
-
-      if (editingProduct) {
-        const res = await api.put(`/api/products/${editingProduct._id}`, payload);
-        if (res.data.success) {
-          showToast('Product updated successfully!');
-          setProducts(products.map((p) => (p._id === editingProduct._id ? res.data.product : p)));
-        }
-      } else {
-        const res = await api.post('/api/products', payload);
-        if (res.data.success) {
-          showToast('Product added successfully!');
-          setProducts([res.data.product, ...products]);
-        }
-      }
+    const payload = {
+      name: productForm.name,
+      description: productForm.description,
+      category: productForm.category,
+      price: Number(productForm.price),
+      unit: productForm.unit,
+      stock: Number(productForm.stock),
+      image: productForm.image,
+    };
+    const res = await handleSaveProduct(payload, editingProduct?._id);
+    setActionLoading(false);
+    if (res.success) {
       setShowModal(false);
-    } catch (err) {
-      showToast(err.response?.data?.message || err.message);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm('Delete this product permanently?')) return;
-    try {
-      const res = await api.delete(`/api/products/${id}`);
-      if (res.data.success) {
-        showToast('Product deleted');
-        setProducts(products.filter((p) => p._id !== id));
-      }
-    } catch (err) {
-      showToast(err.response?.data?.message || err.message);
     }
   };
 
   return (
     <div className="space-y-6">
-      {toastMessage && (
+      {/* Toast */}
+      {toastMessage.text && (
         <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-xl">
-          {toastMessage}
+          {toastMessage.text}
         </div>
       )}
 
+      {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80">
         <div>
-          <h2 className="text-xl font-black text-slate-900">Products Catalog ({products.length})</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Manage stock, prices, descriptions, and categories</p>
+          <h2 className="text-xl font-black text-slate-900">Products Catalog ({filteredProducts.length})</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Manage inventory, prices, descriptions, and units</p>
         </div>
         <button
           onClick={openCreateModal}
@@ -144,6 +98,19 @@ const AdminProductsPage = () => {
         </button>
       </div>
 
+      {/* Search Input */}
+      <div className="relative">
+        <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <input
+          type="text"
+          value={productSearchQuery}
+          onChange={(e) => setProductSearchQuery(e.target.value)}
+          placeholder="Filter products by title, category or description..."
+          className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-400 outline-none focus:border-amber-500 shadow-xs"
+        />
+      </div>
+
+      {/* Table */}
       <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -152,12 +119,12 @@ const AdminProductsPage = () => {
                 <th className="py-3.5 px-4">Product</th>
                 <th className="py-3.5 px-4">Category</th>
                 <th className="py-3.5 px-4">Price / Unit</th>
-                <th className="py-3.5 px-4">Stock</th>
+                <th className="py-3.5 px-4">Stock Status</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
-              {products.map((p) => (
+              {filteredProducts.map((p) => (
                 <tr key={p._id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
@@ -174,7 +141,7 @@ const AdminProductsPage = () => {
                   </td>
                   <td className="py-3.5 px-4">
                     <span className="inline-block text-xs font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700">
-                      {p.category?.name || 'General'}
+                      {p.category?.name || 'Produce'}
                     </span>
                   </td>
                   <td className="py-3.5 px-4 font-bold text-slate-900">
@@ -234,7 +201,7 @@ const AdminProductsPage = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSaveProduct} className="space-y-3">
+            <form onSubmit={onSubmit} className="space-y-3">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Product Name</label>
                 <input
@@ -347,4 +314,3 @@ const AdminProductsPage = () => {
 };
 
 export default AdminProductsPage;
-

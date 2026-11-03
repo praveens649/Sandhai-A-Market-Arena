@@ -25,11 +25,14 @@ const CartPage = () => {
     setPaymentMethod,
     placeOrder,
     addAddress,
+    updateAddress,
+    deleteAddress,
   } = useStore();
 
   const [actionLoading, setActionLoading] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [newAddress, setNewAddress] = useState({
+  const [editingAddress, setEditingAddress] = useState(null);
+  const [addressForm, setAddressForm] = useState({
     recipientName: '',
     phone: '',
     addressLine: '',
@@ -48,20 +51,53 @@ const CartPage = () => {
     }
   };
 
+  const handleOpenCreateAddress = () => {
+    setEditingAddress(null);
+    setAddressForm({
+      recipientName: '',
+      phone: '',
+      addressLine: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      isDefault: false,
+    });
+    setShowAddressModal(true);
+  };
+
+  const handleOpenEditAddress = (addr) => {
+    setEditingAddress(addr);
+    setAddressForm({
+      recipientName: addr.recipientName || '',
+      phone: addr.phone || '',
+      addressLine: addr.addressLine || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      postalCode: addr.postalCode || '',
+      isDefault: Boolean(addr.isDefault),
+    });
+    setShowAddressModal(true);
+  };
+
+  const handleDeleteAddress = async (id) => {
+    if (window.confirm('Are you sure you want to delete this delivery address?')) {
+      await deleteAddress(id);
+    }
+  };
+
   const handleSaveAddress = async (e) => {
     e.preventDefault();
-    const res = await addAddress(newAddress);
-    if (res.success) {
-      setShowAddressModal(false);
-      setNewAddress({
-        recipientName: '',
-        phone: '',
-        addressLine: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        isDefault: false,
-      });
+    if (editingAddress) {
+      const res = await updateAddress(editingAddress._id, addressForm);
+      if (res.success) {
+        setShowAddressModal(false);
+        setEditingAddress(null);
+      }
+    } else {
+      const res = await addAddress(addressForm);
+      if (res.success) {
+        setShowAddressModal(false);
+      }
     }
   };
 
@@ -83,19 +119,23 @@ const CartPage = () => {
         addresses={addresses}
         selectedAddressId={selectedAddressId}
         onSelectAddress={setSelectedAddressId}
-        onOpenAddressModal={() => setShowAddressModal(true)}
+        onOpenAddressModal={handleOpenCreateAddress}
+        onEditAddress={handleOpenEditAddress}
+        onDeleteAddress={handleDeleteAddress}
         paymentMethod={paymentMethod}
         onSelectPaymentMethod={setPaymentMethod}
         onCheckout={handleCheckout}
         actionLoading={actionLoading}
       />
 
-      {/* Address Create Modal */}
+      {/* Address Create/Edit Modal */}
       {showAddressModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-xs p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-black text-slate-900 text-lg">New Delivery Address</h3>
+              <h3 className="font-black text-slate-900 text-lg">
+                {editingAddress ? 'Edit Delivery Address' : 'New Delivery Address'}
+              </h3>
               <button
                 onClick={() => setShowAddressModal(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer"
@@ -110,8 +150,8 @@ const CartPage = () => {
                 <input
                   type="text"
                   required
-                  value={newAddress.recipientName}
-                  onChange={(e) => setNewAddress({ ...newAddress, recipientName: e.target.value })}
+                  value={addressForm.recipientName}
+                  onChange={(e) => setAddressForm({ ...addressForm, recipientName: e.target.value })}
                   placeholder="e.g. Ramesh Kumar"
                   className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:border-emerald-500"
                 />
@@ -122,8 +162,8 @@ const CartPage = () => {
                 <input
                   type="tel"
                   required
-                  value={newAddress.phone}
-                  onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                  value={addressForm.phone}
+                  onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
                   placeholder="9876543210"
                   className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:border-emerald-500"
                 />
@@ -134,8 +174,8 @@ const CartPage = () => {
                 <input
                   type="text"
                   required
-                  value={newAddress.addressLine}
-                  onChange={(e) => setNewAddress({ ...newAddress, addressLine: e.target.value })}
+                  value={addressForm.addressLine}
+                  onChange={(e) => setAddressForm({ ...addressForm, addressLine: e.target.value })}
                   placeholder="Flat No, Street, Landmark"
                   className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:border-emerald-500"
                 />
@@ -147,8 +187,8 @@ const CartPage = () => {
                   <input
                     type="text"
                     required
-                    value={newAddress.city}
-                    onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                    value={addressForm.city}
+                    onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
                     placeholder="Chennai"
                     className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:border-emerald-500"
                   />
@@ -158,8 +198,8 @@ const CartPage = () => {
                   <input
                     type="text"
                     required
-                    value={newAddress.postalCode}
-                    onChange={(e) => setNewAddress({ ...newAddress, postalCode: e.target.value })}
+                    value={addressForm.postalCode}
+                    onChange={(e) => setAddressForm({ ...addressForm, postalCode: e.target.value })}
                     placeholder="600001"
                     className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:border-emerald-500"
                   />
@@ -171,8 +211,8 @@ const CartPage = () => {
                 <input
                   type="text"
                   required
-                  value={newAddress.state}
-                  onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                  value={addressForm.state}
+                  onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
                   placeholder="Tamil Nadu"
                   className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:border-emerald-500"
                 />
@@ -182,7 +222,7 @@ const CartPage = () => {
                 type="submit"
                 className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition-all cursor-pointer mt-2"
               >
-                Save Delivery Address
+                {editingAddress ? 'Save Changes' : 'Save Delivery Address'}
               </button>
             </form>
           </div>

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import api from '../api/client';
 import {
@@ -195,18 +195,42 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  // Robust check for item quantity in cart
   const getItemQuantityInCart = useCallback(
     (productId) => {
       if (!cart || !cart.items) return 0;
-      const item = cart.items.find((i) => (i.productId?._id || i.productId) === productId);
-      return item ? item.quantity : 0;
+      const item = cart.items.find((i) => {
+        const id =
+          i.product?._id ||
+          (typeof i.product === 'string' ? i.product : null) ||
+          i.productId?._id ||
+          (typeof i.productId === 'string' ? i.productId : null);
+        return String(id) === String(productId);
+      });
+      return item ? Number(item.quantity || 0) : 0;
     },
     [cart]
   );
 
+  // Financial computations (calculated directly to eliminate any NaN possibility)
+  const subtotal = useMemo(() => {
+    if (!cart || !cart.items || cart.items.length === 0) return 0;
+    return cart.items.reduce((sum, item) => {
+      const prod =
+        item.product && typeof item.product === 'object'
+          ? item.product
+          : item.productId && typeof item.productId === 'object'
+          ? item.productId
+          : {};
+      const pPrice = Number(prod.price ?? item.price ?? 0);
+      const pQty = Number(item.quantity || 1);
+      return sum + pPrice * pQty;
+    }, 0);
+  }, [cart]);
+
   // Coupon Business Rule (SAVE10)
   const applyCouponCode = (code) => {
-    const res = validateCoupon(code, cart.subtotal || 0);
+    const res = validateCoupon(code, subtotal);
     setCoupon(res);
     return res;
   };
@@ -217,13 +241,11 @@ export const StoreProvider = ({ children }) => {
 
   useEffect(() => {
     if (coupon.isValid && coupon.code === 'SAVE10') {
-      const newDisc = Math.round((cart.subtotal || 0) * 0.1);
+      const newDisc = Math.round(subtotal * 0.1);
       setCoupon((prev) => ({ ...prev, discountAmount: newDisc }));
     }
-  }, [cart.subtotal, coupon.isValid, coupon.code]);
+  }, [subtotal, coupon.isValid, coupon.code]);
 
-  // Financial computations
-  const subtotal = cart?.subtotal || 0;
   const discountAmount = coupon.isValid ? coupon.discountAmount : 0;
   const shippingFee = calculateShipping(subtotal);
   const totalAmount = Math.max(0, subtotal - discountAmount + shippingFee);
@@ -315,6 +337,44 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  const updateAddress = async (id, updatedData) => {
+    try {
+      const res = await api.put(`/api/addresses/${id}`, updatedData);
+      if (res.data.success) {
+        setAddresses((prev) =>
+          prev.map((a) => (a._id === id ? res.data.address : a))
+        );
+        showToast('Delivery address updated!');
+        return { success: true, address: res.data.address };
+      }
+      return { success: false };
+    } catch (err) {
+      showToast(err.response?.data?.message || err.message, 'error');
+      return { success: false };
+    }
+  };
+
+  const deleteAddress = async (id) => {
+    try {
+      const res = await api.delete(`/api/addresses/${id}`);
+      if (res.data.success) {
+        setAddresses((prev) => {
+          const next = prev.filter((a) => a._id !== id);
+          if (selectedAddressId === id) {
+            setSelectedAddressId(next.length > 0 ? next[0]._id : '');
+          }
+          return next;
+        });
+        showToast('Delivery address deleted');
+        return { success: true };
+      }
+      return { success: false };
+    } catch (err) {
+      showToast(err.response?.data?.message || err.message, 'error');
+      return { success: false };
+    }
+  };
+
   const value = {
     // Catalog
     products,
@@ -353,6 +413,8 @@ export const StoreProvider = ({ children }) => {
     paymentMethod,
     setPaymentMethod,
     addAddress,
+    updateAddress,
+    deleteAddress,
     // Toast
     feedback,
     showToast,
@@ -366,4 +428,3 @@ export const useStore = () => {
   if (!ctx) throw new Error('useStore must be used within StoreProvider');
   return ctx;
 };
-

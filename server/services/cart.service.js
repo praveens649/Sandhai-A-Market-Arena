@@ -5,7 +5,8 @@ class CartService {
   async getCart(userId) {
     let cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
-      select: "name price unit image stock isActive",
+      select: "name price unit image stock isActive category",
+      populate: { path: "category", select: "name" },
     });
 
     if (!cart) {
@@ -17,7 +18,8 @@ class CartService {
 
     // Calculate subtotal
     const subtotal = validItems.reduce((acc, item) => {
-      return acc + (item.product.price || 0) * item.quantity;
+      const pPrice = item.product && item.product.price ? item.product.price : 0;
+      return acc + pPrice * item.quantity;
     }, 0);
 
     return {
@@ -128,4 +130,3 @@ class CartService {
 }
 
 module.exports = new CartService();
-
