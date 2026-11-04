@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Sandhai - A Marketplace Arena",
   "scripts": {
+    "build": "npm --prefix client run build",
     "server": "npm --prefix server start",
     "client": "npm --prefix client run dev",
     "client:build": "npm --prefix client run build",

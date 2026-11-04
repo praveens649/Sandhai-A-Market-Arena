@@ -6,6 +6,7 @@ import { StoreProvider } from './context/StoreContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Public Marketing & Auth Pages
 import LandingPage from './pages/LandingPage';
@@ -61,11 +62,12 @@ const ProductAliasRedirect = () => {
 
 const App = () => {
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <StoreProvider>
-          <ThemeProvider>
-            <BrowserRouter>
+    <ErrorBoundary>
+      <ToastProvider>
+        <AuthProvider>
+          <StoreProvider>
+            <ThemeProvider>
+              <BrowserRouter>
               <Routes>
                 {/* ── Public Landing & Auth ── */}
                 <Route path="/" element={<LandingPage />} />
@@ -172,6 +174,7 @@ const App = () => {
         </StoreProvider>
       </AuthProvider>
     </ToastProvider>
+  </ErrorBoundary>
   );
 };
 
