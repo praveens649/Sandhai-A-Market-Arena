@@ -188,6 +188,26 @@ async function runTests() {
     });
     console.log("Cart items after checkout:", postOrderCart.data.cart.items.length);
 
+    // 12b. Customer Placing Order with Online PaymentMethod
+    console.log("\n[Test 12b] Customer placing order with 'Online' payment method...");
+    await api("/api/cart/items", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${userToken}` },
+      body: JSON.stringify({ productId, quantity: 1 }),
+    });
+    const onlineOrderRes = await api("/api/orders", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${userToken}` },
+      body: JSON.stringify({
+        addressId,
+        paymentMethod: "Online",
+      }),
+    });
+    console.log("Status:", onlineOrderRes.status, "Payment Method:", onlineOrderRes.data.order?.paymentMethod, "Payment Status:", onlineOrderRes.data.order?.paymentStatus);
+    if (onlineOrderRes.status !== 201 || onlineOrderRes.data.order?.paymentMethod !== "Online") {
+      throw new Error(`Online payment order placement failed: ${JSON.stringify(onlineOrderRes.data)}`);
+    }
+
     // 13. Customer View My Orders
     console.log("\n[Test 13] Customer viewing order history...");
     const myOrdersRes = await api("/api/orders/my-orders", {

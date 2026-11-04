@@ -266,7 +266,9 @@ export const useAdmin = () => {
       const matchName = (ord.user?.name || ord.deliveryAddress?.recipientName || '').toLowerCase().includes(q);
       const matchEmail = (ord.user?.email || '').toLowerCase().includes(q);
       const matchPhone = (ord.deliveryAddress?.phone || '').toLowerCase().includes(q);
-      return matchId || matchName || matchEmail || matchPhone;
+      const matchCity = (ord.deliveryAddress?.city || '').toLowerCase().includes(q);
+      const matchItem = ord.items?.some((i) => (i.name || '').toLowerCase().includes(q));
+      return matchId || matchName || matchEmail || matchPhone || matchCity || matchItem;
     });
   }, [orders, orderStatusFilter, orderSearchQuery]);
 

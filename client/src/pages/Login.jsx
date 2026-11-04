@@ -8,21 +8,17 @@ import {
   Mail, 
   Eye, 
   EyeOff, 
-  ShieldCheck, 
-  UserCheck, 
-  Sparkles,
   ArrowRight
 } from 'lucide-react';
 
 const Login = () => {
-  const [isAdminMode, setIsAdminMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const { loginCustomer, loginAdmin, isAuthenticated, isAdmin, role } = useAuth();
+  const { login, isAuthenticated, isAdmin, role } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,28 +34,16 @@ const Login = () => {
     }
   }, [isAuthenticated, isAdmin, role, navigate]);
 
-  const fillAdminCredentials = () => {
-    setIsAdminMode(true);
-    setEmail('superadmin@example.com');
-    setPassword('12345678910');
-    setError('');
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSubmitting(true);
 
     try {
-      let authRes;
-      if (isAdminMode) {
-        authRes = await loginAdmin(email, password);
-      } else {
-        authRes = await loginCustomer(email, password);
-      }
+      const authRes = await login(email, password);
 
-      // Check role returned from the decoded JWT payload
-      const userRole = authRes?.role || (isAdminMode ? 'admin' : 'user');
+      // Check role returned from the decoded JWT payload / response
+      const userRole = authRes?.role || 'user';
       const fromPath = location.state?.from?.pathname;
       showToast(`Welcome back, ${authRes?.user?.name || (userRole === 'admin' ? 'Administrator' : 'Customer')}!`, 'success');
 
@@ -79,7 +63,7 @@ const Login = () => {
         }
       }
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Authentication failed. Please check credentials.';
+      const msg = err.response?.data?.message || err.message || 'Invalid email or password. Please try again.';
       setError(msg);
       showToast(msg, 'error');
     } finally {
@@ -92,47 +76,12 @@ const Login = () => {
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200/80 p-8">
         
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-600/30 mb-3">
             <ShoppingBag className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Sandhai</h1>
-          <p className="text-sm font-medium text-slate-500 mt-1">A Marketplace Arena</p>
-        </div>
-
-        {/* Role Toggle Selector */}
-        <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1.5 rounded-2xl mb-6 border border-slate-200/60">
-          <button
-            type="button"
-            onClick={() => {
-              setIsAdminMode(false);
-              setError('');
-            }}
-            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
-              !isAdminMode
-                ? 'bg-white text-emerald-700 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <UserCheck className="w-4 h-4" />
-            <span>Customer</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsAdminMode(true);
-              setError('');
-            }}
-            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
-              isAdminMode
-                ? 'bg-white text-emerald-700 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Administrator</span>
-          </button>
+          <p className="text-sm font-medium text-slate-500 mt-1">Sign in to your account</p>
         </div>
 
         {/* Error Alert */}
@@ -156,7 +105,7 @@ const Login = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={isAdminMode ? 'superadmin@example.com' : 'you@example.com'}
+                placeholder="you@example.com"
                 className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50/50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none text-slate-900 text-sm transition-all"
               />
             </div>
@@ -196,56 +145,21 @@ const Login = () => {
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
-                <span>{isAdminMode ? 'Sign In as Administrator' : 'Sign In as Customer'}</span>
+                <span>Sign In</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
         </form>
 
-        {/* Demo Admin Auto-fill Box */}
-        {isAdminMode && (
-          <div className="mt-6 p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-xs">
-            <div className="flex items-center gap-2 font-bold text-amber-900 mb-2">
-              <ShieldCheck className="w-4 h-4 text-amber-600" />
-              <span>Seeded Admin Credentials</span>
-            </div>
-            <div className="space-y-1 text-slate-700 font-mono text-[11px] mb-3 bg-white/80 p-2.5 rounded-lg border border-amber-200/40">
-              <div>Email: <strong>superadmin@example.com</strong></div>
-              <div>Pass: <strong>12345678910</strong></div>
-            </div>
-            <button
-              type="button"
-              onClick={fillAdminCredentials}
-              className="w-full py-2 px-3 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold transition-colors cursor-pointer text-xs flex items-center justify-center gap-1.5"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Auto-fill Admin Credentials</span>
-            </button>
-          </div>
-        )}
-
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-          {!isAdminMode ? (
-            <p className="text-sm text-slate-600">
-              New customer?{' '}
-              <Link to="/signup" className="font-bold text-emerald-600 hover:text-emerald-700 underline underline-offset-4">
-                Create an account
-              </Link>
-            </p>
-          ) : (
-            <p className="text-sm text-slate-600">
-              Customer store login?{' '}
-              <button
-                type="button"
-                onClick={() => setIsAdminMode(false)}
-                className="font-bold text-emerald-600 hover:text-emerald-700 underline underline-offset-4 cursor-pointer"
-              >
-                Switch to Customer
-              </button>
-            </p>
-          )}
+          <p className="text-sm text-slate-600">
+            Don't have an account?{' '}
+            <Link to="/signup" className="font-bold text-emerald-600 hover:text-emerald-700 underline underline-offset-4">
+              Create an account
+            </Link>
+          </p>
         </div>
 
       </div>

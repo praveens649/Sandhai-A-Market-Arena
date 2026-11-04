@@ -64,6 +64,11 @@ class OrderService {
     }
 
     // 6. Create order snapshot
+    const allowedPaymentMethods = ["COD", "Online", "Card", "UPI", "NetBanking"];
+    const validPaymentMethod = allowedPaymentMethods.includes(paymentMethod)
+      ? paymentMethod
+      : "COD";
+
     const order = await Order.create({
       user: userId,
       items: orderItems,
@@ -78,8 +83,8 @@ class OrderService {
       itemsTotal,
       deliveryCharge,
       totalAmount,
-      paymentMethod,
-      paymentStatus: paymentMethod === "COD" ? "Pending" : "Completed",
+      paymentMethod: validPaymentMethod,
+      paymentStatus: validPaymentMethod === "COD" ? "Pending" : "Completed",
       orderStatus: "Ordered",
     });
 

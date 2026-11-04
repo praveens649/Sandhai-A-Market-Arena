@@ -108,6 +108,29 @@ export const AuthProvider = ({ children }) => {
     throw new Error(res.data.message || 'Admin login failed');
   };
 
+  const login = async (email, password) => {
+    try {
+      const res = await api.post('/api/users/login', { email, password });
+      if (res.data.success && res.data.token) {
+        const saved = saveAuthData(res.data.token, res.data.user);
+        const role = saved.payload?.role || saved.user?.role || 'user';
+        return { ...res.data, role, user: saved.user, token: saved.token };
+      }
+    } catch (err) {
+      try {
+        const adminRes = await api.post('/api/admin/login', { email, password });
+        if (adminRes.data.success && adminRes.data.token) {
+          const saved = saveAuthData(adminRes.data.token, adminRes.data.admin);
+          const role = saved.payload?.role || saved.user?.role || 'admin';
+          return { ...adminRes.data, role, user: saved.user, token: saved.token };
+        }
+      } catch (adminErr) {
+        throw err;
+      }
+      throw err;
+    }
+  };
+
   const signup = async ({ name, email, password, phone }) => {
     const res = await api.post('/api/users/signup', { name, email, password, phone });
     if (res.data.success && res.data.token) {
@@ -142,6 +165,7 @@ export const AuthProvider = ({ children }) => {
     isAdmin,
     isCustomer,
     loading,
+    login,
     loginCustomer,
     loginAdmin,
     signup,
