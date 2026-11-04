@@ -1,21 +1,31 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
 import api from '../api/client';
 import {
-  fetchCart,
-  addToCart as apiAddToCart,
-  updateCartItemQuantity as apiUpdateQuantity,
-  removeFromCart as apiRemoveFromCart,
-  clearCart as apiClearCart,
-  validateCoupon,
-  calculateShipping,
-} from '../_action/cartActions';
+  fetchCartAsync,
+  addToCartAsync,
+  updateQuantityAsync,
+  removeFromCartAsync,
+  clearCartAsync,
+  applyCoupon as applyCouponAction,
+  removeCoupon as removeCouponAction,
+  resetCart,
+  selectCart,
+  selectCartLoading,
+  selectCoupon,
+  selectDiscountAmount,
+  selectShippingFee,
+  selectTotalAmount,
+  selectSubtotal,
+} from '../redux/cartSlice';
 
 const StoreContext = createContext(null);
 
 export const StoreProvider = ({ children }) => {
   const { user, isAuthenticated, isAdmin } = useAuth();
+  const dispatch = useDispatch();
 
   // Products & Categories
   const [products, setProducts] = useState([]);
@@ -23,16 +33,14 @@ export const StoreProvider = ({ children }) => {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [productError, setProductError] = useState(null);
 
-  // Cart
-  const [cart, setCart] = useState({ items: [], subtotal: 0, totalItems: 0 });
-  const [cartLoading, setCartLoading] = useState(false);
-  const [coupon, setCoupon] = useState({
-    code: '',
-    isValid: false,
-    discountAmount: 0,
-    discountPercentage: 0,
-    message: '',
-  });
+  // Redux-Managed Cart State
+  const cart = useSelector(selectCart);
+  const cartLoading = useSelector(selectCartLoading);
+  const coupon = useSelector(selectCoupon);
+  const discountAmount = useSelector(selectDiscountAmount);
+  const shippingFee = useSelector(selectShippingFee);
+  const totalAmount = useSelector(selectTotalAmount);
+  const subtotal = useSelector(selectSubtotal);
 
   // Wishlist, Orders, Addresses
   const [wishlist, setWishlist] = useState([]);
@@ -93,18 +101,19 @@ export const StoreProvider = ({ children }) => {
     }
   }, []);
 
-  // 2. Fetch User Data (Cart, Wishlist, Addresses, Orders)
+  // 2. Fetch User Data (Wishlist, Addresses, Orders & Sync Redux Cart)
   const loadUserData = useCallback(async () => {
     if (!isAuthenticated || isAdmin) return;
     try {
-      const [cartRes, wishRes, addrRes, ordRes] = await Promise.all([
-        fetchCart().catch(() => ({ cart: null })),
+      // Dispatch Redux Cart Fetch
+      dispatch(fetchCartAsync());
+
+      const [wishRes, addrRes, ordRes] = await Promise.all([
         api.get('/api/wishlist').catch(() => ({ data: { wishlist: { products: [] } } })),
         api.get('/api/addresses').catch(() => ({ data: { addresses: [] } })),
         api.get('/api/orders/my-orders').catch(() => ({ data: { orders: [] } })),
       ]);
 
-      if (cartRes.cart) setCart(cartRes.cart);
       if (wishRes.data.wishlist) setWishlist(wishRes.data.wishlist.products || []);
       if (addrRes.data.addresses) {
         const addrs = addrRes.data.addresses || [];
@@ -116,7 +125,7 @@ export const StoreProvider = ({ children }) => {
     } catch (err) {
       console.error('Failed to load customer data:', err);
     }
-  }, [isAuthenticated, isAdmin]);
+  }, [isAuthenticated, isAdmin, dispatch]);
 
   useEffect(() => {
     loadCatalog();
@@ -126,24 +135,22 @@ export const StoreProvider = ({ children }) => {
     loadUserData();
   }, [loadUserData]);
 
-  // Cart Operations
+  // Synchronize Redux cart lifecycle on logout/role switch
+  useEffect(() => {
+    if (!isAuthenticated || isAdmin) {
+      dispatch(resetCart());
+    }
+  }, [isAuthenticated, isAdmin, dispatch]);
+
+  // Redux Cart Operations
   const addToCart = async (productId, quantity = 1) => {
-    setCartLoading(true);
     try {
-      const res = await apiAddToCart(productId, quantity);
-      if (res.success) {
-        setCart(res.cart);
-        showToast('Item added to cart!');
-        return { success: true };
-      }
-      showToast(res.message, 'error');
-      return { success: false };
+      const res = await dispatch(addToCartAsync({ productId, quantity })).unwrap();
+      showToast('Item added to cart!');
+      return { success: true, cart: res };
     } catch (err) {
-      const msg = err.response?.data?.message || err.message;
-      showToast(msg, 'error');
-      return { success: false, message: msg };
-    } finally {
-      setCartLoading(false);
+      showToast(err || 'Failed to add item to cart', 'error');
+      return { success: false, message: err };
     }
   };
 
@@ -152,48 +159,33 @@ export const StoreProvider = ({ children }) => {
       if (quantity <= 0) {
         return await removeFromCart(productId);
       }
-      const res = await apiUpdateQuantity(productId, quantity);
-      if (res.success) {
-        setCart(res.cart);
-        return { success: true };
-      }
-      showToast(res.message, 'error');
-      return { success: false };
+      const res = await dispatch(updateQuantityAsync({ productId, quantity })).unwrap();
+      return { success: true, cart: res };
     } catch (err) {
-      showToast(err.response?.data?.message || err.message, 'error');
-      return { success: false };
+      showToast(err || 'Failed to update quantity', 'error');
+      return { success: false, message: err };
     }
   };
 
   const removeFromCart = async (productId) => {
     try {
-      const res = await apiRemoveFromCart(productId);
-      if (res.success) {
-        setCart(res.cart);
-        showToast('Item removed from cart');
-        return { success: true };
-      }
-      showToast(res.message, 'error');
-      return { success: false };
+      const res = await dispatch(removeFromCartAsync(productId)).unwrap();
+      showToast('Item removed from cart', 'info');
+      return { success: true, cart: res };
     } catch (err) {
-      showToast(err.response?.data?.message || err.message, 'error');
-      return { success: false };
+      showToast(err || 'Failed to remove item', 'error');
+      return { success: false, message: err };
     }
   };
 
   const clearCart = async () => {
     try {
-      const res = await apiClearCart();
-      if (res.success) {
-        setCart({ items: [], subtotal: 0, totalItems: 0 });
-        setCoupon({ code: '', isValid: false, discountAmount: 0, discountPercentage: 0, message: '' });
-        showToast('Cart cleared');
-        return { success: true };
-      }
-      return { success: false };
+      await dispatch(clearCartAsync()).unwrap();
+      showToast('Cart cleared', 'info');
+      return { success: true };
     } catch (err) {
-      showToast(err.response?.data?.message || err.message, 'error');
-      return { success: false };
+      showToast(err || 'Failed to clear cart', 'error');
+      return { success: false, message: err };
     }
   };
 
@@ -214,49 +206,23 @@ export const StoreProvider = ({ children }) => {
     [cart]
   );
 
-  // Financial computations (calculated directly to eliminate any NaN possibility)
-  const subtotal = useMemo(() => {
-    if (!cart || !cart.items || cart.items.length === 0) return 0;
-    return cart.items.reduce((sum, item) => {
-      const prod =
-        item.product && typeof item.product === 'object'
-          ? item.product
-          : item.productId && typeof item.productId === 'object'
-          ? item.productId
-          : {};
-      const pPrice = Number(prod.price ?? item.price ?? 0);
-      const pQty = Number(item.quantity || 1);
-      return sum + pPrice * pQty;
-    }, 0);
-  }, [cart]);
-
-  // Coupon Business Rule (SAVE10)
+  // Redux Coupon Actions
   const applyCouponCode = (code) => {
-    const res = validateCoupon(code, subtotal);
-    setCoupon(res);
-    if (res.isValid) {
-      showToast(res.message || 'Coupon applied! 10% discount added.', 'success');
+    dispatch(applyCouponAction(code));
+    const trimmed = (code || '').trim().toUpperCase();
+    if (trimmed === 'SAVE10') {
+      showToast('Coupon SAVE10 applied! 10% discount added.', 'success');
+      return { isValid: true, message: 'SAVE10 applied: 10% off' };
     } else {
-      showToast(res.message || 'Invalid coupon code', 'error');
+      showToast('Invalid coupon code. Try SAVE10.', 'error');
+      return { isValid: false, message: 'Invalid coupon code' };
     }
-    return res;
   };
 
   const removeCoupon = () => {
-    setCoupon({ code: '', isValid: false, discountAmount: 0, discountPercentage: 0, message: '' });
+    dispatch(removeCouponAction());
     showToast('Coupon removed', 'info');
   };
-
-  useEffect(() => {
-    if (coupon.isValid && coupon.code === 'SAVE10') {
-      const newDisc = Math.round(subtotal * 0.1);
-      setCoupon((prev) => ({ ...prev, discountAmount: newDisc }));
-    }
-  }, [subtotal, coupon.isValid, coupon.code]);
-
-  const discountAmount = coupon.isValid ? coupon.discountAmount : 0;
-  const shippingFee = calculateShipping(subtotal);
-  const totalAmount = Math.max(0, subtotal - discountAmount + shippingFee);
 
   // Wishlist Operations
   const toggleWishlist = async (productId) => {
@@ -301,8 +267,7 @@ export const StoreProvider = ({ children }) => {
       });
       if (res.data.success) {
         showToast('Order placed successfully! Thank you for ordering from Sandhai.');
-        setCart({ items: [], subtotal: 0, totalItems: 0 });
-        removeCoupon();
+        dispatch(resetCart());
         const ordRes = await api.get('/api/orders/my-orders');
         if (ordRes.data.success) setMyOrders(ordRes.data.orders);
         return { success: true };
