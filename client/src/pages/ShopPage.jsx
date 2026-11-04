@@ -15,6 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ShoppingBag,
+  X,
+  Loader2,
 } from 'lucide-react';
 
 const ShopPage = () => {
@@ -46,6 +48,8 @@ const ShopPage = () => {
     setMinRating,
     searchQuery,
     setSearchQuery,
+    debouncedSearchQuery,
+    isSearching,
     sortBy,
     setSortBy,
     clearAllFilters,
@@ -93,8 +97,23 @@ const ShopPage = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search for products, brands and more..."
-            className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 text-sm shadow-xs focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+            className="w-full pl-12 pr-16 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm shadow-xs focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
           />
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            {isSearching && (
+              <Loader2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 animate-spin" />
+            )}
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
         {/* Mobile Filters Trigger */}
         <button

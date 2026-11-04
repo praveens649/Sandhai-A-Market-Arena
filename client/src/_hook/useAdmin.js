@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '../context/ToastContext';
+import { useDebounce } from './useDebounce';
 import {
   fetchAdminDashboard,
   fetchAdminOrders,
@@ -30,6 +31,11 @@ export const useAdmin = () => {
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [userSearchQuery, setUserSearchQuery] = useState('');
+
+  // Debounced search queries for smooth performance
+  const debouncedOrderSearch = useDebounce(orderSearchQuery, 300);
+  const debouncedProductSearch = useDebounce(productSearchQuery, 300);
+  const debouncedUserSearch = useDebounce(userSearchQuery, 300);
 
   const { showToast: triggerToast } = useToast();
 
@@ -255,13 +261,13 @@ export const useAdmin = () => {
     };
   }, [orders, users]);
 
-  // Filtered Orders
+  // Filtered Orders (Debounced)
   const filteredOrders = useMemo(() => {
     return orders.filter((ord) => {
       const matchStatus = orderStatusFilter === 'ALL' || ord.orderStatus === orderStatusFilter;
       if (!matchStatus) return false;
-      if (!orderSearchQuery.trim()) return true;
-      const q = orderSearchQuery.toLowerCase();
+      if (!debouncedOrderSearch.trim()) return true;
+      const q = debouncedOrderSearch.toLowerCase();
       const matchId = ord._id?.toLowerCase().includes(q);
       const matchName = (ord.user?.name || ord.deliveryAddress?.recipientName || '').toLowerCase().includes(q);
       const matchEmail = (ord.user?.email || '').toLowerCase().includes(q);
@@ -270,31 +276,31 @@ export const useAdmin = () => {
       const matchItem = ord.items?.some((i) => (i.name || '').toLowerCase().includes(q));
       return matchId || matchName || matchEmail || matchPhone || matchCity || matchItem;
     });
-  }, [orders, orderStatusFilter, orderSearchQuery]);
+  }, [orders, orderStatusFilter, debouncedOrderSearch]);
 
-  // Filtered Products
+  // Filtered Products (Debounced)
   const filteredProducts = useMemo(() => {
-    if (!productSearchQuery.trim()) return products;
-    const q = productSearchQuery.toLowerCase();
+    if (!debouncedProductSearch.trim()) return products;
+    const q = debouncedProductSearch.toLowerCase();
     return products.filter(
       (p) =>
         p.name?.toLowerCase().includes(q) ||
         p.category?.name?.toLowerCase().includes(q) ||
         p.description?.toLowerCase().includes(q)
     );
-  }, [products, productSearchQuery]);
+  }, [products, debouncedProductSearch]);
 
-  // Filtered Users
+  // Filtered Users (Debounced)
   const filteredUsers = useMemo(() => {
-    if (!userSearchQuery.trim()) return users;
-    const q = userSearchQuery.toLowerCase();
+    if (!debouncedUserSearch.trim()) return users;
+    const q = debouncedUserSearch.toLowerCase();
     return users.filter(
       (u) =>
         u.name?.toLowerCase().includes(q) ||
         u.email?.toLowerCase().includes(q) ||
         u.phone?.toLowerCase().includes(q)
     );
-  }, [users, userSearchQuery]);
+  }, [users, debouncedUserSearch]);
 
   return {
     stats,

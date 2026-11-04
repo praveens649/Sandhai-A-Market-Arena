@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { useToast } from '../context/ToastContext';
+import { useDebounce } from '../_hook/useDebounce';
 import {
   Package,
   ArrowLeft,
@@ -29,6 +30,7 @@ const OrdersPage = () => {
 
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'Ordered' | 'Delivered' | 'Cancelled'
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [refreshing, setRefreshing] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [activeInvoiceOrder, setActiveInvoiceOrder] = useState(null);
@@ -63,9 +65,9 @@ const OrdersPage = () => {
         return false;
       }
 
-      // Search filter
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
+      // Search filter (Debounced for performance)
+      if (debouncedSearchQuery.trim()) {
+        const query = debouncedSearchQuery.toLowerCase().trim();
         const idMatch = (ord._id || '').toLowerCase().includes(query);
         const recipientMatch = (ord.deliveryAddress?.recipientName || '').toLowerCase().includes(query);
         const cityMatch = (ord.deliveryAddress?.city || '').toLowerCase().includes(query);
@@ -77,7 +79,7 @@ const OrdersPage = () => {
 
       return true;
     });
-  }, [myOrders, statusFilter, searchQuery]);
+  }, [myOrders, statusFilter, debouncedSearchQuery]);
 
   // 3. Actions
   const handleCopyOrderId = (id) => {

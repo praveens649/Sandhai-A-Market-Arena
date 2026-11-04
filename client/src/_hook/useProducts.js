@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { fetchProducts, fetchCategories } from '../_action/productActions';
+import { useDebounce } from './useDebounce';
 
 export const useProducts = () => {
   const [products, setProducts] = useState([]);
@@ -13,6 +14,7 @@ export const useProducts = () => {
   const [appliedPriceRange, setAppliedPriceRange] = useState({ min: '', max: '' });
   const [minRating, setMinRating] = useState(0); // 0 = Any, 3 = 3 stars & up, 4 = 4 stars & up
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300); // 300ms debounce
   const [sortBy, setSortBy] = useState('featured'); // 'featured', 'price-asc', 'price-desc', 'rating-desc'
 
   // Pagination (Page 4: 8 items per page)
@@ -116,9 +118,9 @@ export const useProducts = () => {
         // Customer Rating Filter
         if (minRating > 0 && (p.rating || 0) < minRating) return false;
 
-        // Search Query
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
+        // Debounced Search Query (Optimized performance)
+        if (debouncedSearchQuery.trim()) {
+          const q = debouncedSearchQuery.toLowerCase();
           const matchName = p.name.toLowerCase().includes(q);
           const matchDesc = p.description?.toLowerCase().includes(q);
           const matchCat = p.category?.name?.toLowerCase().includes(q);
@@ -133,7 +135,12 @@ export const useProducts = () => {
         if (sortBy === 'rating-desc') return (b.rating || 0) - (a.rating || 0);
         return 0; // 'featured' keeps original ordering
       });
-  }, [products, selectedCategories, appliedPriceRange, minRating, searchQuery, sortBy]);
+  }, [products, selectedCategories, appliedPriceRange, minRating, debouncedSearchQuery, sortBy]);
+
+  // Reset to page 1 when search query updates
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchQuery]);
 
   // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(filteredAndSortedProducts.length / itemsPerPage));
@@ -163,6 +170,8 @@ export const useProducts = () => {
     setMinRating,
     searchQuery,
     setSearchQuery,
+    debouncedSearchQuery,
+    isSearching: searchQuery !== debouncedSearchQuery,
     sortBy,
     setSortBy,
     clearAllFilters,
