@@ -8,38 +8,35 @@
       <stop offset="0%" stop-color="#34d399" />
       <stop offset="100%" stop-color="#10b981" />
     </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25" />
-    </filter>
   </defs>
 
   <!-- Brand Background Squircle -->
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#sandhaiGrad)" filter="url(#shadow)" />
-
-  <!-- Shopping Bag Body -->
-  <path
-    d="M18 24 L46 24 L43 50 C42.8 52 41 53.5 39 53.5 L25 53.5 C23 53.5 21.2 52 21 50 L18 24 Z"
-    fill="#ffffff"
-  />
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#sandhaiGrad)" />
 
   <!-- Shopping Bag Handle -->
   <path
-    d="M26 24 V19 C26 15.7 28.7 13 32 13 C35.3 13 38 19 38 19 V24"
+    d="M25 25 V19 C25 15.1 28.1 12 32 12 C35.9 12 39 15.1 39 19 V25"
     fill="none"
     stroke="#ffffff"
-    stroke-width="3.5"
+    stroke-width="4"
     stroke-linecap="round"
   />
 
-  <!-- Fresh Market Sprout / Leaf Motif -->
+  <!-- Shopping Bag Body -->
   <path
-    d="M32 28 C32 28 39 31 39 38 C39 42 35 44 32 44 C29 44 25 42 25 38 C25 31 32 28 32 28 Z"
+    d="M16 25 L48 25 L45 51 C44.8 53 43.1 54.5 41.1 54.5 L22.9 54.5 C20.9 54.5 19.2 53 19 51 L16 25 Z"
+    fill="#ffffff"
+  />
+
+  <!-- Fresh Market Sprout Leaf -->
+  <path
+    d="M32 29 C32 29 40 33 40 40 C40 44 36.5 46.5 32 46.5 C27.5 46.5 24 44 24 40 C24 33 32 29 32 29 Z"
     fill="url(#leafGrad)"
   />
   <path
-    d="M32 30 V42"
+    d="M32 32 V44"
     stroke="#ffffff"
-    stroke-width="1.8"
+    stroke-width="2"
     stroke-linecap="round"
   />
 </svg>
