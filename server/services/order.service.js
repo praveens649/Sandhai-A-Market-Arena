@@ -21,18 +21,32 @@ class OrderService {
       throw new Error("Cart is empty. Please add items before placing an order.");
     }
 
-    // 3. Server-side validation of prices and stock
-    const orderItems = [];
-    let itemsTotal = 0;
+    // 3. Auto-heal: Filter out deleted/orphan products from cart
+    const initialItemCount = cart.items.length;
+    const validatedCartEntries = [];
 
     for (const item of cart.items) {
       const product = await Product.findById(item.product);
-      if (!product || !product.isActive) {
-        throw new Error(
-          `Product is no longer available: ${product ? product.name : "Unknown Item"}`
-        );
+      if (product && product.isActive) {
+        validatedCartEntries.push({ item, product });
       }
+    }
 
+    // If any orphan or inactive products were found, update the cart in database
+    if (validatedCartEntries.length !== initialItemCount) {
+      cart.items = validatedCartEntries.map((e) => e.item);
+      await cart.save();
+    }
+
+    if (validatedCartEntries.length === 0) {
+      throw new Error("The items in your cart are no longer available. Please select available products from the store.");
+    }
+
+    // 4. Server-side validation of stock and line totals
+    const orderItems = [];
+    let itemsTotal = 0;
+
+    for (const { item, product } of validatedCartEntries) {
       if (product.stock < item.quantity) {
         throw new Error(
           `Insufficient stock for "${product.name}". Available: ${product.stock}, in cart: ${item.quantity}`

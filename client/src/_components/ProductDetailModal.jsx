@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   X,
   Star,
@@ -22,19 +23,11 @@ const ProductDetailModal = ({
 }) => {
   if (!product) return null;
 
+  const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState('description'); // 'description', 'specs', 'reviews'
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState('description');
 
-  // Fallback images gallery (Page 5: 4 images gallery)
-  const images = product.images && product.images.length > 0
-    ? product.images
-    : [
-        product.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600',
-        'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600',
-        'https://images.unsplash.com/photo-1584473457406-6240486418e9?w=600',
-        'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=600',
-      ];
+  const productImage = product.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600';
 
   const savings = product.discountPercentage > 0
     ? Math.round(product.originalPrice - product.price)
@@ -62,40 +55,19 @@ const ProductDetailModal = ({
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left: Gallery */}
-          <div className="space-y-3">
-            {/* Main Preview with Discount Badge */}
-            <div className="relative w-full h-80 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
+          {/* Left: Product Media */}
+          <div>
+            <div className="relative w-full h-80 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-xs">
               {product.discountPercentage > 0 && (
                 <span className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-md bg-orange-600 text-white font-black text-xs">
                   -{product.discountPercentage}%
                 </span>
               )}
               <img
-                src={images[selectedImageIndex]}
+                src={productImage}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
-              <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-lg bg-black/60 text-[10px] text-white font-semibold">
-                Image {selectedImageIndex + 1} of {images.length}
-              </span>
-            </div>
-
-            {/* Thumbnail Row */}
-            <div className="grid grid-cols-4 gap-2">
-              {images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedImageIndex(idx)}
-                  className={`h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                    selectedImageIndex === idx
-                      ? 'border-emerald-600 ring-2 ring-emerald-500/20'
-                      : 'border-slate-200 opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
             </div>
           </div>
 
@@ -291,15 +263,19 @@ const ProductDetailModal = ({
               {relatedProducts.slice(0, 4).map((rel) => (
                 <div
                   key={rel._id}
-                  onClick={() => onSelectProduct(rel)}
-                  className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 hover:border-emerald-400 cursor-pointer transition-all"
+                  onClick={() => {
+                    if (onClose) onClose();
+                    navigate(`/app/product/${rel._id}`);
+                  }}
+                  className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 hover:border-emerald-400 cursor-pointer transition-all group"
+                  title={`View ${rel.name}`}
                 >
                   <img
                     src={rel.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300'}
                     alt={rel.name}
-                    className="w-full h-24 rounded-xl object-cover bg-white mb-2"
+                    className="w-full h-24 rounded-xl object-cover bg-white mb-2 group-hover:scale-105 transition-transform"
                   />
-                  <div className="font-bold text-slate-900 text-xs truncate">{rel.name}</div>
+                  <div className="font-bold text-slate-900 text-xs truncate group-hover:text-emerald-700 transition-colors">{rel.name}</div>
                   <div className="text-xs font-black text-emerald-700 mt-0.5">₹{rel.price}</div>
                 </div>
               ))}

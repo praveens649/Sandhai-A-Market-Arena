@@ -13,8 +13,18 @@ class CartService {
       cart = await Cart.create({ user: userId, items: [] });
     }
 
-    // Filter out items where product may have been permanently removed
-    const validItems = cart.items.filter((item) => item.product !== null);
+    // Filter out items where product may have been permanently removed or deactivated
+    const validItems = cart.items.filter(
+      (item) => item.product !== null && item.product && item.product.isActive !== false
+    );
+
+    // Auto-heal: update database so orphan items are permanently pruned
+    if (validItems.length !== cart.items.length) {
+      await Cart.updateOne(
+        { _id: cart._id },
+        { items: validItems.map((v) => ({ product: v.product._id, quantity: v.quantity })) }
+      );
+    }
 
     // Calculate subtotal
     const subtotal = validItems.reduce((acc, item) => {

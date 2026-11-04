@@ -4,6 +4,7 @@ const Category = require("../models/category.model");
 const Product = require("../models/product.model");
 const Address = require("../models/address.model");
 const Order = require("../models/order.model");
+const Cart = require("../models/cart.model");
 
 const seedAdminAndDefaults = async () => {
   try {
@@ -466,6 +467,26 @@ const seedAdminAndDefaults = async () => {
     );
     if (migrationResult.modifiedCount > 0) {
       console.log(`[MIGRATION] Migrated ${migrationResult.modifiedCount} legacy order(s) to 'Ordered'`);
+    }
+
+    // ──────────────────────────────────────────
+    // 8. Auto-heal carts by removing orphaned/deleted products
+    // ──────────────────────────────────────────
+    const allCarts = await Cart.find();
+    for (const c of allCarts) {
+      if (c.items && c.items.length > 0) {
+        const cleanedItems = [];
+        for (const item of c.items) {
+          const exists = await Product.exists({ _id: item.product, isActive: true });
+          if (exists) {
+            cleanedItems.push(item);
+          }
+        }
+        if (cleanedItems.length !== c.items.length) {
+          c.items = cleanedItems;
+          await c.save();
+        }
+      }
     }
 
     console.log(`[SEED] Sandhai database seeding completed successfully.`);
