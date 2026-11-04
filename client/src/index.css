@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  /* Brand Tokens - Sandhai Market Emerald (adapted from Kadai Store Token Specs) */
+  /* Brand Tokens - Sandhai Market Emerald */
   --color-primary-700: #047857;
   --color-primary-600: #059669;
   --color-primary-100: #d1fae5;
@@ -43,8 +45,17 @@
   --shadow-lg: 0 16px 40px rgba(17, 24, 39, 0.12);
 }
 
+:root.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-800 antialiased font-sans;
+    @apply bg-slate-50 text-slate-800 antialiased font-sans transition-colors duration-200;
+  }
+  .dark body,
+  :root.dark body {
+    @apply bg-slate-950 text-slate-100;
   }
 }

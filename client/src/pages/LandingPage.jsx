@@ -164,35 +164,35 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-200">
       {/* Sticky Clean Navbar */}
       <LandingNavbar />
 
       {/* ── 1. HERO SECTION ── */}
-      <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-24 overflow-hidden bg-gradient-to-b from-emerald-50/70 via-teal-50/30 to-white">
+      <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-24 overflow-hidden bg-gradient-to-b from-emerald-50/70 via-teal-50/30 to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 transition-colors">
         {/* Soft background glow accents */}
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-r from-emerald-200/40 via-teal-200/30 to-emerald-100/40 blur-3xl pointer-events-none rounded-full" />
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-r from-emerald-200/40 via-teal-200/30 to-emerald-100/40 dark:from-emerald-500/10 dark:via-teal-500/10 dark:to-emerald-500/5 blur-3xl pointer-events-none rounded-full" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 text-center lg:text-left space-y-6">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-300 text-emerald-800 text-xs font-black uppercase tracking-wider shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/80 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 text-xs font-black uppercase tracking-wider shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Tamil Nadu's Farm-Fresh Marketplace Arena</span>
               </div>
 
               {/* Main Headline */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.12] tracking-tight">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white leading-[1.12] tracking-tight">
                 Fresh Groceries & Farm Harvest,{' '}
-                <span className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-500 dark:from-emerald-400 dark:via-emerald-300 dark:to-teal-300 bg-clip-text text-transparent">
                   Direct to Your Door
                 </span>
               </h1>
 
               {/* Subheading */}
-              <p className="text-base sm:text-lg text-slate-600 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
                 Sandhai brings the authentic pulse of local morning markets directly to your home. Enjoy
                 handpicked fruits, crisp seasonal vegetables, pure dairy, and pantry staples with free delivery on orders above ₹500.
               </p>
@@ -210,7 +210,7 @@ const LandingPage = () => {
                 {!user && (
                   <Link
                     to="/login"
-                    className="w-full sm:w-auto px-7 py-3.5 rounded-2xl font-bold text-sm text-slate-700 bg-white border border-slate-300 hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50/50 shadow-xs transition-all duration-150 text-center"
+                    className="w-full sm:w-auto px-7 py-3.5 rounded-2xl font-bold text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-slate-800 shadow-xs transition-all duration-150 text-center"
                   >
                     Customer / Admin Login
                   </Link>
@@ -218,17 +218,17 @@ const LandingPage = () => {
               </div>
 
               {/* Micro Trust Points */}
-              <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-5 text-xs font-semibold text-slate-500">
+              <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-5 text-xs font-semibold text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>Free shipping on ₹500+</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>Save 10% with code SAVE10</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>Cash on Delivery & UPI</span>
                 </div>
               </div>
@@ -236,51 +236,51 @@ const LandingPage = () => {
 
             {/* Right Interactive Mockup / Visual Card */}
             <div className="lg:col-span-5 relative flex justify-center">
-              <div className="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl shadow-emerald-950/10 border border-slate-200/90 space-y-4">
+              <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl shadow-emerald-950/10 dark:shadow-slate-950/60 border border-slate-200/90 dark:border-slate-800 space-y-4 transition-colors">
                 {/* Visual Header */}
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs shadow-sm">
                       S
                     </div>
                     <div>
-                      <div className="font-extrabold text-xs text-slate-900 leading-tight">Sandhai Fresh Express</div>
+                      <div className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight">Sandhai Fresh Express</div>
                       <div className="text-[10px] text-slate-400 font-medium">Morning Harvest • Live Stock</div>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider">
                     Farm Direct
                   </span>
                 </div>
 
                 {/* Featured Products Snapshot */}
                 <div className="space-y-2.5">
-                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-100">
+                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
                     <img
                       src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=120&q=80"
                       alt="Shimla Apples"
                       className="w-12 h-12 rounded-xl object-cover"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-xs text-slate-900 truncate">Shimla Fresh Royal Apples</div>
-                      <div className="text-[11px] text-slate-500 font-medium">₹180 / kg</div>
+                      <div className="font-bold text-xs text-slate-900 dark:text-white truncate">Shimla Fresh Royal Apples</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">₹180 / kg</div>
                     </div>
-                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
+                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800">
                       In Stock
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-100">
+                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
                     <img
                       src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=120&q=80"
                       alt="Organic Farm Spinach"
                       className="w-12 h-12 rounded-xl object-cover"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-xs text-slate-900 truncate">Organic Native Spinach</div>
-                      <div className="text-[11px] text-slate-500 font-medium">₹35 / bunch</div>
+                      <div className="font-bold text-xs text-slate-900 dark:text-white truncate">Organic Native Spinach</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">₹35 / bunch</div>
                     </div>
-                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
+                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800">
                       Harvested Today
                     </span>
                   </div>
@@ -313,21 +313,21 @@ const LandingPage = () => {
       </section>
 
       {/* ── 2. POPULAR CATEGORIES ── */}
-      <section className="py-16 sm:py-20 bg-slate-50/70 border-y border-slate-200/60">
+      <section className="py-16 sm:py-20 bg-slate-50/70 dark:bg-slate-900/50 border-y border-slate-200/60 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
-              <span className="text-xs font-black uppercase tracking-widest text-emerald-700">Market Aisle</span>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1">
+              <span className="text-xs font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">Market Aisle</span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
                 Explore Essential Categories
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
                 Fresh natural produce, morning dairy staples, and premium kitchen essentials sourced daily.
               </p>
             </div>
             <button
               onClick={handlePrimaryCTA}
-              className="text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
+              className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
             >
               <span>View All Products</span>
               <ArrowRight className="w-4 h-4" />
@@ -339,7 +339,7 @@ const LandingPage = () => {
               <div
                 key={idx}
                 onClick={handlePrimaryCTA}
-                className="group relative bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-xl hover:border-emerald-300 transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                className="group relative bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-xl hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-300 cursor-pointer flex flex-col justify-between"
               >
                 <div className="h-44 sm:h-48 overflow-hidden relative">
                   <img
@@ -348,7 +348,7 @@ const LandingPage = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-xs text-[10px] font-black text-slate-900 shadow-xs">
+                    <span className="px-2.5 py-1 rounded-full bg-white/95 dark:bg-slate-900/90 backdrop-blur-xs text-[10px] font-black text-slate-900 dark:text-white shadow-xs">
                       {cat.tag}
                     </span>
                   </div>
@@ -356,12 +356,12 @@ const LandingPage = () => {
 
                 <div className="p-5 space-y-1.5 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                       {cat.title}
                     </h3>
-                    <p className="text-xs text-slate-500 line-clamp-1">{cat.subtitle}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{cat.subtitle}</p>
                   </div>
-                  <div className="pt-3 flex items-center justify-between text-xs font-bold text-emerald-700 border-t border-slate-100">
+                  <div className="pt-3 flex items-center justify-between text-xs font-bold text-emerald-700 dark:text-emerald-400 border-t border-slate-100 dark:border-slate-800">
                     <span>Shop Fresh</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -373,14 +373,14 @@ const LandingPage = () => {
       </section>
 
       {/* ── 3. VALUE PROPOSITIONS (WHY CHOOSE SANDHAI) ── */}
-      <section className="py-16 sm:py-24 bg-white">
+      <section className="py-16 sm:py-24 bg-white dark:bg-slate-950 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-2">
-            <span className="text-xs font-black uppercase tracking-widest text-emerald-700">The Sandhai Advantage</span>
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            <span className="text-xs font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">The Sandhai Advantage</span>
+            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
               Why Thousands Trust Our Marketplace Arena
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
               We blend traditional street market freshness with modern e-commerce reliability, fair pricing, and doorstep convenience.
             </p>
           </div>
@@ -391,20 +391,20 @@ const LandingPage = () => {
               return (
                 <div
                   key={idx}
-                  className="bg-white p-6 rounded-3xl border border-slate-200/80 hover:border-emerald-300 shadow-xs hover:shadow-lg transition-all duration-300 space-y-4"
+                  className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-600 shadow-xs hover:shadow-lg transition-all duration-300 space-y-4"
                 >
                   <div className="flex items-center justify-between">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${feat.iconColor}`}>
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${feat.iconColor} dark:bg-slate-800`}>
                       <Icon className="w-6 h-6" />
                     </div>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${feat.badgeColor}`}>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${feat.badgeColor} dark:bg-slate-800 dark:text-emerald-300`}>
                       {feat.badge}
                     </span>
                   </div>
 
                   <div className="space-y-1.5">
-                    <h3 className="text-base font-bold text-slate-900">{feat.title}</h3>
-                    <p className="text-xs text-slate-500 leading-relaxed">{feat.description}</p>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">{feat.title}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{feat.description}</p>
                   </div>
                 </div>
               );
@@ -414,14 +414,14 @@ const LandingPage = () => {
       </section>
 
       {/* ── 4. HOW IT WORKS ── */}
-      <section className="py-16 sm:py-20 bg-slate-50/80 border-t border-slate-200/60">
+      <section className="py-16 sm:py-20 bg-slate-50/80 dark:bg-slate-900/50 border-t border-slate-200/60 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
-            <span className="text-xs font-black uppercase tracking-widest text-emerald-700">Simple Process</span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <span className="text-xs font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">Simple Process</span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               How Ordering Works on Sandhai
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
               Fresh produce from morning stalls to your kitchen in three painless steps.
             </p>
           </div>
@@ -430,13 +430,13 @@ const LandingPage = () => {
             {HOW_IT_WORKS.map((step, idx) => (
               <div
                 key={idx}
-                className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs relative space-y-3"
+                className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs relative space-y-3"
               >
-                <span className="font-mono font-black text-3xl text-emerald-600/25 block">
+                <span className="font-mono font-black text-3xl text-emerald-600/25 dark:text-emerald-400/25 block">
                   {step.step}
                 </span>
-                <h3 className="font-bold text-base text-slate-900">{step.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{step.desc}</p>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white">{step.title}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -444,11 +444,11 @@ const LandingPage = () => {
       </section>
 
       {/* ── 5. CUSTOMER TESTIMONIALS ── */}
-      <section className="py-16 sm:py-24 bg-white">
+      <section className="py-16 sm:py-24 bg-white dark:bg-slate-950 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
-            <span className="text-xs font-black uppercase tracking-widest text-emerald-700">Verified Reviews</span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <span className="text-xs font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">Verified Reviews</span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               Loved by Families Across the Region
             </h2>
           </div>
@@ -457,7 +457,7 @@ const LandingPage = () => {
             {TESTIMONIALS.map((t, idx) => (
               <div
                 key={idx}
-                className="bg-slate-50/80 p-6 rounded-3xl border border-slate-200/70 shadow-xs space-y-3 flex flex-col justify-between"
+                className="bg-slate-50/80 dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/70 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center gap-1 text-amber-400">
@@ -465,10 +465,10 @@ const LandingPage = () => {
                       <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed italic">"{t.quote}"</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">"{t.quote}"</p>
                 </div>
-                <div className="pt-3 border-t border-slate-200/60">
-                  <div className="font-bold text-xs text-slate-900">{t.name}</div>
+                <div className="pt-3 border-t border-slate-200/60 dark:border-slate-800">
+                  <div className="font-bold text-xs text-slate-900 dark:text-white">{t.name}</div>
                   <div className="text-[11px] text-slate-400">{t.location}</div>
                 </div>
               </div>
