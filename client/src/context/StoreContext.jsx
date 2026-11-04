@@ -4,11 +4,9 @@ import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
 import api from '../api/client';
 import {
-  fetchCartAsync,
-  addToCartAsync,
-  updateQuantityAsync,
-  removeFromCartAsync,
-  clearCartAsync,
+  setCart,
+  setLoading as setCartLoadingAction,
+  setError as setCartErrorAction,
   applyCoupon as applyCouponAction,
   removeCoupon as removeCouponAction,
   resetCart,
@@ -20,6 +18,13 @@ import {
   selectTotalAmount,
   selectSubtotal,
 } from '../redux/cartSlice';
+import {
+  fetchCart as apiFetchCart,
+  addToCart as apiAddToCart,
+  updateCartItemQuantity as apiUpdateQuantity,
+  removeFromCart as apiRemoveFromCart,
+  clearCart as apiClearCart,
+} from '../_action/cartActions';
 
 const StoreContext = createContext(null);
 
@@ -105,8 +110,14 @@ export const StoreProvider = ({ children }) => {
   const loadUserData = useCallback(async () => {
     if (!isAuthenticated || isAdmin) return;
     try {
-      // Dispatch Redux Cart Fetch
-      dispatch(fetchCartAsync());
+      // Fetch Cart directly from API and dispatch pure Redux action
+      apiFetchCart()
+        .then((data) => {
+          if (data && data.cart) {
+            dispatch(setCart(data.cart));
+          }
+        })
+        .catch((err) => console.warn('Failed to load cart:', err));
 
       const [wishRes, addrRes, ordRes] = await Promise.all([
         api.get('/api/wishlist').catch(() => ({ data: { wishlist: { products: [] } } })),
@@ -142,50 +153,81 @@ export const StoreProvider = ({ children }) => {
     }
   }, [isAuthenticated, isAdmin, dispatch]);
 
-  // Redux Cart Operations
+  // Redux Cart Operations (Direct API call + Pure Redux Action Dispatch)
   const addToCart = async (productId, quantity = 1) => {
+    dispatch(setCartLoadingAction(true));
     try {
-      const res = await dispatch(addToCartAsync({ productId, quantity })).unwrap();
-      showToast('Item added to cart!');
-      return { success: true, cart: res };
+      const res = await apiAddToCart(productId, quantity);
+      if (res.success && res.cart) {
+        dispatch(setCart(res.cart));
+        showToast('Item added to cart!');
+        return { success: true, cart: res.cart };
+      }
+      dispatch(setCartLoadingAction(false));
+      showToast(res.message, 'error');
+      return { success: false, message: res.message };
     } catch (err) {
-      showToast(err || 'Failed to add item to cart', 'error');
-      return { success: false, message: err };
+      const msg = err.response?.data?.message || err.message;
+      dispatch(setCartErrorAction(msg));
+      showToast(msg || 'Failed to add item to cart', 'error');
+      return { success: false, message: msg };
     }
   };
 
   const updateCartQuantity = async (productId, quantity) => {
+    if (quantity <= 0) {
+      return await removeFromCart(productId);
+    }
+    dispatch(setCartLoadingAction(true));
     try {
-      if (quantity <= 0) {
-        return await removeFromCart(productId);
+      const res = await apiUpdateQuantity(productId, quantity);
+      if (res.success && res.cart) {
+        dispatch(setCart(res.cart));
+        return { success: true, cart: res.cart };
       }
-      const res = await dispatch(updateQuantityAsync({ productId, quantity })).unwrap();
-      return { success: true, cart: res };
+      dispatch(setCartLoadingAction(false));
+      showToast(res.message, 'error');
+      return { success: false };
     } catch (err) {
-      showToast(err || 'Failed to update quantity', 'error');
-      return { success: false, message: err };
+      const msg = err.response?.data?.message || err.message;
+      dispatch(setCartErrorAction(msg));
+      showToast(msg || 'Failed to update quantity', 'error');
+      return { success: false, message: msg };
     }
   };
 
   const removeFromCart = async (productId) => {
+    dispatch(setCartLoadingAction(true));
     try {
-      const res = await dispatch(removeFromCartAsync(productId)).unwrap();
-      showToast('Item removed from cart', 'info');
-      return { success: true, cart: res };
+      const res = await apiRemoveFromCart(productId);
+      if (res.success && res.cart) {
+        dispatch(setCart(res.cart));
+        showToast('Item removed from cart', 'info');
+        return { success: true, cart: res.cart };
+      }
+      dispatch(setCartLoadingAction(false));
+      showToast(res.message, 'error');
+      return { success: false };
     } catch (err) {
-      showToast(err || 'Failed to remove item', 'error');
-      return { success: false, message: err };
+      const msg = err.response?.data?.message || err.message;
+      dispatch(setCartErrorAction(msg));
+      showToast(msg || 'Failed to remove item', 'error');
+      return { success: false, message: msg };
     }
   };
 
   const clearCart = async () => {
+    dispatch(setCartLoadingAction(true));
     try {
-      await dispatch(clearCartAsync()).unwrap();
+      await apiClearCart();
+      dispatch(resetCart());
       showToast('Cart cleared', 'info');
       return { success: true };
     } catch (err) {
-      showToast(err || 'Failed to clear cart', 'error');
-      return { success: false, message: err };
+      const msg = err.response?.data?.message || err.message;
+      dispatch(setCartErrorAction(msg));
+      showToast(msg || 'Failed to clear cart', 'error');
+      return { success: false, message: msg };
     }
   };
 
